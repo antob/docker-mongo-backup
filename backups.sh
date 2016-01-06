@@ -13,10 +13,10 @@ cd ${MYBACKUPDIR}
 echo "[MONGO_BACKUP] Backup running to $MYBACKUPDIR" >> /var/log/cron.log
 echo "[MONGO_BACKUP] Backing up DB $MONGODB_DATABASE on host $MONGODB_HOST"  >> /var/log/cron.log
 
-mongodump -h $MONGODB_HOST -d $MONGODB_DATABASE
+DUMP_OUTPUT="$(mongodump -h $MONGODB_HOST -d $MONGODB_DATABASE 2>&1)"
 
 if [ $? -ne 0 ]; then
-  echo "[MONGO_BACKUP] Error: Failed to backup $MONGODB_DATABASE" >> /var/log/cron.log
+  echo "[MONGO_BACKUP] Error: Failed to backup $MONGODB_DATABASE. Error was: $DUMP_OUTPUT" >> /var/log/cron.log
   exit 0
 fi
 

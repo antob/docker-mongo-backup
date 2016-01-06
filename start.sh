@@ -8,14 +8,14 @@ fi
 # Check if each var is declared and if not,
 # set a sensible default
 if [ -z "${MONGODB_URL}" ]; then
-  MONGODB_URL=mongodb://mongodb:27017/app
+  MONGODB_URL=mongodb://localhost:27017/app
 fi
 
 # Parse DB URL
 # extract the protocol
-proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+proto="$(echo $MONGODB_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
 # remove the protocol
-url="$(echo ${1/$proto/})"
+url="$(echo ${MONGODB_URL/$proto/})"
 # extract the user (if any)
 user="$(echo $url | grep @ | cut -d@ -f1)"
 # extract the host
@@ -23,19 +23,12 @@ host="$(echo ${url/$user@/} | cut -d/ -f1)"
 # extract the DB name
 database="$(echo $url | grep / | cut -d/ -f2-)"
 
-MONGODB_HOST=$host
-MONGODB_DATABASE=$database
-
 if [ -z "${MONGODB_HOST}" ]; then
-  MONGODB_HOST=mongodb:27017
+  MONGODB_HOST=$host
 fi
 
 if [ -z "${MONGODB_DATABASE}" ]; then
-  MONGODB_DATABASE=app
-fi
-
-if [ -z "${DUMPPREFIX}" ]; then
-  DUMPPREFIX=MONGODB_
+  MONGODB_DATABASE=$database
 fi
 
 # Now write these all to case file that can be sourced
@@ -46,7 +39,6 @@ fi
 echo "
 export MONGODB_HOST=$MONGODB_HOST
 export MONGODB_DATABASE=$MONGODB_DATABASE
-export DUMPPREFIX=$DUMPPREFIX
  " > /mongodb_env.sh
 
 echo "[MONGO_BACKUP] Starting backup script."
